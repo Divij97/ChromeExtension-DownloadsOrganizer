@@ -7,8 +7,7 @@ let storageCache = {};
 fetch("config.json")
   .then(response => response.json())
   .then(data => {
-  	// Do something with your data
-  	storageCache = data
+  	Object.assign(storageCache, data)
   });
 
 let askPathForFileType = (fileExtenstion) => {
@@ -39,6 +38,7 @@ chrome.downloads.onDeterminingFilename.addListener(
       filename: storageCache[fileExtenstion] + "\\" + fileName,
     }
 
+    console.log(fileExtenstion);
     console.log(filenameSuggestion);
     suggest(filenameSuggestion);
   }
