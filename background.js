@@ -1,15 +1,3 @@
-// const storageCache = {};
-// const initStorageCache = getAllStorageSyncData().then(items => {
-//   Object.assign(storageCache, items);
-// });
-
-let storageCache = {};
-fetch("config.json")
-  .then(response => response.json())
-  .then(data => {
-  	Object.assign(storageCache, data)
-  });
-
 let askPathForFileType = (fileExtenstion) => {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, {
@@ -29,18 +17,19 @@ chrome.downloads.onDeterminingFilename.addListener(
     let filePath = downloadItem.filename;
     let fileExtenstion = filePath.split(".").at(-1).trim().toLowerCase();
     let fileName = filePath.split("\\").at(-1).trim();
-    if (storageCache[fileExtenstion] == undefined)
-    {
-      askPathForFileType(fileExtenstion);
-    }
-    let filenameSuggestion = {
-      conflictAction: "uniquify",
-      filename: storageCache[fileExtenstion] + "\\" + fileName,
-    }
+    fetch("config.json")
+    .then(response => response.json())
+    .then(response => response[fileExtenstion])
+    .then(folder => {
+      let filenameSuggestion = {
+        conflictAction: "uniquify",
+        filename: folder + "\\" + fileName,
+      }
+      console.log(filenameSuggestion); 
+      suggest(filenameSuggestion);
+    })
 
-    console.log(fileExtenstion);
-    console.log(filenameSuggestion);
-    suggest(filenameSuggestion);
+    return true;
   }
 )
 
